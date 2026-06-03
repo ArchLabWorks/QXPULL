@@ -1,6 +1,6 @@
 # QXNet Pull — Daily Data Digestion for QuantXT / QXGraph
 
-A Python script that automatically fetches, processes, and archives fiscal, index, and market data from FRED and Yahoo Finance into 8.3-compliant `.TXT` files for use with QuantXT trading systems.
+A Python script that automatically fetches, processes, and archives fiscal, index, and market data from FRED and Yahoo Finance into 8.3-compliant `.TXT` files for use with QuantXT platform.
 
 ---
 
