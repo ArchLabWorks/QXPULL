@@ -53,7 +53,62 @@ Each dependency is displayed with color‑coded status:
 ### **3. Optional Auto‑Install of Missing Packages**
 If any dependencies are missing, the installer now offers:
 
+"Would you like to auto-install the missing packages now (yes/no):"
 
+If the user selects **yes**, the installer will:
+
+- Invoke `pip` using the current Python interpreter  
+- Install all missing packages in one command  
+- Display success or failure messages  
+- Continue setup automatically if installation succeeds  
+
+If the user selects **no**, the installer exits cleanly and provides the exact `pip install` command needed.
+
+---
+
+### **4. Improved Error Handling & User Feedback**
+The setup program now includes:
+
+- Graceful handling of Ctrl‑C during masked input  
+- Clear warnings when skipping API key overwrite  
+- Consistent color‑coded output across all steps  
+- Better validation messages for directory and file permissions  
+
+---
+
+## 🧩 Example Output (Local Mode)
+
+============================================================
+Checking Python Dependencies
+============================================================
+
+✓ Dependency OK: pandas
+✗ Missing: yfinance
+✗ Missing: requests
+
+⚠ Some required Python packages are missing
+ℹ Missing packages:
+
+yfinance
+
+requests
+
+Would you like to auto-install the missing packages now (yes/no):
+
+
+---
+
+## 📁 Updated Setup Flow
+
+1. Check Python dependencies  
+2. Offer auto‑install if needed  
+3. Create directory structure  
+4. Prompt for masked API key  
+5. Write secure key file (0600 permissions)  
+6. Validate installation  
+7. Display run instructions  
+
+---
 
 ## Function Reference
 
