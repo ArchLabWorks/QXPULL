@@ -12,82 +12,48 @@ A Python script that automatically fetches, processes, and archives fiscal, inde
 |-----------|-------------|--------|--------|
 | **QX** | FRED fiscal snapshot | `QXYYMMDD.TXT` | Federal Reserve (FRED) |
 | **QM** | FRED index snapshot | `QMYYMMDD.TXT` | Federal Reserve (FRED) |
-| **QG** | Market OHLCV + TA | `QGTTTYYMMDD.TXT` | Yahoo Finance |
+| **TT** | Market OHLCV + TA | `TTTYYMM.TXT` | Yahoo Finance |
 | **US** | 30-day fiscal history | `USMMDDYY.TXT` | Federal Reserve (FRED) |
 
 Data is automatically pruned and archived to keep storage efficient.
 
 ---
 
-## Installation
+# 📦 Setup Program Enhancements (v1.0)
 
-### Prerequisites
+The `setup_qxnet.py` installer has been upgraded to provide a smoother, more robust, and fully cross‑platform setup experience. These improvements apply to both **local** (`~/.qxnet`) and **production** (`/var/qxnet`) deployments.
 
-- **Python 3.8+** (tested with 3.10, 3.11, 3.12, 3.14)
-- **Windows/Linux/macOS** with write access to `/var/qxnet/` (or configured `DATA_DIR`)
+### **1. Cross‑Platform Masked API Key Input**
+Entering your FRED API key now uses a secure, masked input method:
 
-### Step 1: Install Python Dependencies
+- **Windows:** Uses `msvcrt` for raw key capture  
+- **Linux/macOS:** Uses `tty` + `termios`  
+- Characters appear as `*` while typing  
+- Backspace and Ctrl‑C behave correctly  
+- Terminal state is always restored safely  
 
-```bash
-pip install --upgrade pip
-pip install pandas numpy yfinance requests
-```
-
-**Optional but recommended:**
-```bash
-pip install --upgrade yfinance  # Ensures latest Yahoo Finance support
-```
-
-### Step 2: Create Data Directories
-
-```bash
-mkdir -p /var/qxnet/data
-mkdir -p /var/qxnet/archive
-mkdir -p /var/qxnet/logs
-```
-
-**On Windows:**
-```cmd
-mkdir C:\var\qxnet\data
-mkdir C:\var\qxnet\archive
-mkdir C:\var\qxnet\logs
-```
-
-### Step 3: Verify Installation
-
-```bash
-python -c "import pandas, yfinance, requests; print('✓ All dependencies installed')"
-```
+This replaces the previous `getpass()` behavior that showed no feedback while typing.
 
 ---
 
-## Configuration
+### **2. Automatic Dependency Detection**
+Before creating directories or writing configuration files, the setup program now checks for required Python packages:
 
-Edit the **CONFIG** section in `qxpull.py`:
+- `pandas`  
+- `yfinance`  
+- `requests`  
 
-```python
-# API & ENDPOINTS
-FRED_API_KEY   = "your_fred_api_key_here"
-FRED_BASE      = "https://api.stlouisfed.org/fred/series/observations"
+Each dependency is displayed with color‑coded status:
 
-# DIRECTORIES
-DATA_DIR       = "/var/qxnet/data"        # Where new files are written
-ARCHIVE_DIR    = "/var/qxnet/archive"     # Where old files are moved
-LOG_FILE       = "/var/qxnet/qxpull.log"  # Log output
-
-# RETENTION POLICY
-RETAIN_DAYS    = 30     # Keep files in DATA_DIR for 30 days
-ARCHIVE_DAYS   = 365    # Keep files in ARCHIVE_DIR for 1 year
-```
-
-### Getting a FRED API Key
-
-1. Visit [https://fredaccount.stlouisfed.org/login/secure/](https://fredaccount.stlouisfed.org/login/secure/)
-2. Register for a free account
-3. Generate an API key from your account dashboard
-4. Update `FRED_API_KEY` in the config
+- **✓ Dependency OK**  
+- **✗ Missing**  
 
 ---
+
+### **3. Optional Auto‑Install of Missing Packages**
+If any dependencies are missing, the installer now offers:
+
+
 
 ## Function Reference
 
@@ -250,7 +216,7 @@ END
 ---
 
 #### `write_graph_file(date, ticker_label, df)`
-Writes 30-day rolling OHLCV + indicators to `QGTTTYYMMDD.TXT`.
+Writes 30-day rolling OHLCV + indicators to `TTTYYMM.TXT`.
 
 **Format:**
 ```
@@ -276,7 +242,7 @@ Manages file lifecycle:
 1. Moves files older than `RETAIN_DAYS` from `DATA_DIR` → `ARCHIVE_DIR`
 2. Deletes files in `ARCHIVE_DIR` older than `ARCHIVE_DAYS`
 
-Handles all 4 file types: QX, QM, QG, US
+Handles all 4 file types: QX, QM, TT, US
 
 ---
 
@@ -306,7 +272,7 @@ Orchestrates the entire data pull:
 1. **Fiscal Snapshot (QX)** — Fetch latest values for 16 FRED series
 2. **Fiscal History (US)** — Build 30-day rolling history
 3. **Index Snapshot (QM)** — Fetch latest index values
-4. **Graph Data (QG)** — Fetch and compute 30-day rolling OHLCV + indicators for each ticker
+4. **Graph Data (TT)** — Fetch and compute 30-day rolling OHLCV + indicators for each ticker
 5. **Maintenance** — Prune old files and archive
 
 Logs all operations to `LOG_FILE`.
@@ -398,8 +364,8 @@ Add entry (runs daily at 6:00 AM):
 /var/qxnet/data/
 ├── QX260531.TXT          # Fiscal snapshot
 ├── QM260531.TXT          # Index snapshot
-├── QGSPX260531.TXT       # S&P 500 (30d rolling)
-├── QGNDX260531.TXT       # Nasdaq 100 (30d rolling)
+├── SPX26060.TXT          # S&P 500 (30d rolling)
+├── NDX26060.TXT          # Nasdaq 100 (30d rolling)
 └── US053126.TXT          # Fiscal history (30d rolling)
 ```
 
@@ -409,7 +375,7 @@ Add entry (runs daily at 6:00 AM):
 /var/qxnet/archive/
 ├── QX260501.TXT
 ├── QM260501.TXT
-├── QGSPX260501.TXT
+├── SPX26060.TXT
 └── US050126.TXT
 ```
 
@@ -419,8 +385,8 @@ Add entry (runs daily at 6:00 AM):
 /var/qxnet/data/MANIFEST.TXT
 QX260531.TXT
 QM260531.TXT
-QGSPX260531.TXT
-QGNDX260531.TXT
+SPX26060.TXT
+NDX26060.TXT 
 US053126.TXT
 ```
 
@@ -435,8 +401,8 @@ All operations are logged to `LOG_FILE` (`/var/qxnet/qxpull.log`):
 2026-05-31 06:00:18 INFO Written: QX260531.TXT
 2026-05-31 06:00:25 INFO Written US history file: US053126.TXT
 2026-05-31 06:00:27 INFO Written: QM260531.TXT
-2026-05-31 06:00:35 INFO Written QXGraph file: QGSPX260531.TXT
-2026-05-31 06:00:42 INFO Written QXGraph file: QGNDX260531.TXT
+2026-05-31 06:00:35 INFO Written QXGraph file: SPX26060.TXT
+2026-05-31 06:00:42 INFO Written QXGraph file: NDX26060.TXT
 2026-05-31 06:00:45 INFO Archived: QX260501.TXT (age 30d)
 2026-05-31 06:00:45 INFO === QXNet pull complete — 16 fiscal fields, 3 index fields, 2 graph tickers, 30-day US history generated ===
 ```
@@ -511,7 +477,7 @@ sudo chmod 755 /var/qxnet/{data,archive}
 |------|--------|---------|---------|
 | QX | `QXYYMMDD.TXT` | `QX260531.TXT` | 30 days |
 | QM | `QMYYMMDD.TXT` | `QM260531.TXT` | 30 days |
-| QG | `QGTTTYYMMDD.TXT` | `QGSPX260531.TXT` | 30 days |
+| TT | `TTTYYMM.TXT` | `SPX26060.TXT` | 30 days |
 | US | `USMMDDYY.TXT` | `US053126.TXT` | 30 days |
 
 ---
