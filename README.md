@@ -78,9 +78,11 @@ The setup program now includes:
 
 ## 🧩 Example Output (Local Mode)
 
-============================================================
-Checking Python Dependencies
-============================================================
+`============================================================`
+
+`Checking Python Dependencies`
+
+`============================================================`
 
 ✓ Dependency OK: pandas
 ✗ Missing: yfinance
